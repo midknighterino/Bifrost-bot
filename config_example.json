@@ -1,7 +1,5 @@
 {
-	"prefix": "prefix-here",
 	"token": "bot-token-here",
-	"opUserIDs": ["bot-owner-id-here", "bot-owner-friend's-id-here"], 
 	"whitelistedChannelIDs": ["channel-id","another-channel-id"],
 	"blacklistedUserIDs": ["annoying-user-id","another-annoying-user-id"]
 }
