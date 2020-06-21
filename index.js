@@ -1,11 +1,10 @@
-
-const fs = require('fs');
 const Discord = require('discord.js');
+const vader = require('vader-sentiment');
 const client = new Discord.Client();
-const { token, prefix, opUserIDs, whitelistedChannelIDs,blacklistedUserIDs } = require('./config.json');
+const { token, whitelistedChannelIDs,blacklistedUserIDs } = require('./config.json');
 
 client.once('ready', () => {
-	console.log('Bifrost-bot Ready!');
+	console.log(`Bifrost-bot is ready!`);
 });
 
 client.on('message', message => {
@@ -13,32 +12,77 @@ client.on('message', message => {
 	if (message.author.bot){
 		return;
 	}
+
 	else if (blacklistedUserIDs.includes(message.author.id)){
 		return;
 	}
+
 	else if (whitelistedChannelIDs.includes(message.channel.id) === false){
 		return;
 	}
-
-	const isOP = opUserIDs.includes(message.author.id)
-
-	const bifrostEmbed = new Discord.MessageEmbed ()
-	.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
-	.setDescription (`${message.content}`)
-	.setFooter (`UID: ${message.author.id}, S: ${message.guild.name}, OP: ${isOP}`)
-
-	function notSourceChannel (string){
-		return string != message.channel.id;
+	
+	else if (message.content.startsWith("%")){
+	    return;
 	}
 
-	const destinationChannelIDs = whitelistedChannelIDs.filter(notSourceChannel);
+	else if (message.content == 0){
+		message.delete()
+		return;
+	}
 
-	destinationChannelIDs.forEach(function(entry) {
-		client.channels.cache.get(entry).send(bifrostEmbed)
-		});
+	let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
+	let sentimentScore = Math.round(sentiment.compound*100);
+		
+	if (sentiment.compound >= 0.034){
+
+		message.delete()
+
+		const bifrostEmbed = new Discord.MessageEmbed ()
+		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
+		.setDescription (`${message.content}`)
+		.setColor (`228B22`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+	
+		whitelistedChannelIDs.forEach(function(entry) {
+			client.channels.cache
+				.get(entry)
+				.send(bifrostEmbed)
+		})
+	}
+
+	else if (sentiment.compound <= -0.034){
+
+		message.delete()
+
+		const bifrostEmbed = new Discord.MessageEmbed ()
+		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
+		.setDescription (`${message.content}`)
+		.setColor (`FF0000`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+	
+		whitelistedChannelIDs.forEach(function(entry) {
+			client.channels.cache
+				.get(entry)
+				.send(bifrostEmbed)
+		})
+	}
+
+	else {
+		
+		message.delete()
+
+		const bifrostEmbed = new Discord.MessageEmbed ()
+		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
+		.setDescription (`${message.content}`)
+		.setColor (`FF8C00`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+	
+		whitelistedChannelIDs.forEach(function(entry) {
+			client.channels.cache
+				.get(entry)
+				.send(bifrostEmbed)
+		})
+	}
+
 });
-
 client.login(token);
-
-/*To do
-1. uses manual mod */
