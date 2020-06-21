@@ -7,4 +7,4 @@ A discord bot that link channels in different servers/guilds together, allowing 
 - messages starting with % will be ignored 
 - messages that do not contain text will be ignored (e.g. image embeds)
 
-Works by watching channels, deleting messages and reposting their content in all configured channels as embeds. Footer ofthe embeds lists server of origin, user id and sentiment score (uses VADER) 
+Works by watching channels, deleting messages and reposting their content in all configured channels as embeds. Footer of the embeds lists server of origin, user id and sentiment score (uses VADER) 
