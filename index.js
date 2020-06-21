@@ -3,6 +3,19 @@ const vader = require('vader-sentiment');
 const client = new Discord.Client();
 const { token, whitelistedChannelIDs,blacklistedUserIDs } = require('./config.json');
 
+var stringToColour = function(str) {
+	var hash = 0;
+	for (var i = 0; i < str.length; i++) {
+	  hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	var colour = '#';
+	for (var i = 0; i < 3; i++) {
+	  var value = (hash >> (i * 8)) & 0xFF;
+	  colour += ('00' + value.toString(16)).substr(-2);
+	}
+	return colour;
+  }
+
 client.once('ready', () => {
 	console.log(`Bifrost-bot is ready!`);
 });
@@ -28,7 +41,7 @@ client.on('message', message => {
 	
 	else if (message.content.startsWith("%")){
 		if (message.content === "%info"){
-			message.reply("\nGithub: <https://github.com/midknighterino/Bifrost-bot> \nLicense: <https://choosealicense.com/licenses/agpl-3.0/> \n\nVADER Citation: Hutto, C.J. & Gilbert, E.E. (2014). VADER citation: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.")
+			message.reply("\nGithub: <https://github.com/midknighterino/Bifrost-bot> \nLicense: <https://choosealicense.com/licenses/agpl-3.0/> \n\nVADER Citation: Hutto, C.J. & Gilbert, E.E. (2014). VADER citation: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.\nLink: <https://www.aaai.org/ocs/index.php/ICWSM/ICWSM14/paper/viewPaper/8109>")
 			return;
 		}
 		else {
@@ -36,60 +49,41 @@ client.on('message', message => {
 		}
 	}
 	
-	console.log(`Content: ${message.content} \n\nServer: ${message.guild.name} \n\nAuthor: ${message.author.username} (${message.author.id})`)
+	console.log(`Content: ${message.content} (${message.content.length}) \nServer: ${message.guild.name} \nAuthor: ${message.author.username} (${message.author.id})`)
 
-	let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
+	if (message.content.length > 100){
 
-	if (sentiment.compound >= 0.034){
+		message.delete();
+
+		let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
+		let sentimentBig = Math.round(sentiment.compound*1000);
+
+		let bifrostEmbed = new Discord.MessageEmbed ()
+		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
+		.setDescription (`${message.content}`)
+		.setColor (`${stringToColour(sentimentBig.toString())}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentBig} (Zero is neutral)`)
+	
+		whitelistedChannelIDs.forEach(function(entry) {
+			client.channels.cache.get(entry)
+			.send(bifrostEmbed)
+		})
+		return;
+	} else {
 
 		message.delete()
 
 		const bifrostEmbed = new Discord.MessageEmbed ()
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
-		.setColor (`228B22`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
 				.get(entry)
 				.send(bifrostEmbed)
 		})
+		return;
 	}
-
-	else if (sentiment.compound <= -0.034){
-
-		message.delete()
-
-		const bifrostEmbed = new Discord.MessageEmbed ()
-		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
-		.setDescription (`${message.content}`)
-		.setColor (`FF0000`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
-	
-		whitelistedChannelIDs.forEach(function(entry) {
-			client.channels.cache
-				.get(entry)
-				.send(bifrostEmbed)
-		})
-	}
-
-	else {
-		
-		message.delete()
-
-		const bifrostEmbed = new Discord.MessageEmbed ()
-		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
-		.setDescription (`${message.content}`)
-		.setColor (`FF8C00`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
-	
-		whitelistedChannelIDs.forEach(function(entry) {
-			client.channels.cache
-				.get(entry)
-				.send(bifrostEmbed)
-		})
-	}
-
 });
 client.login(token);
