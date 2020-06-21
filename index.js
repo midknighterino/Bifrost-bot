@@ -39,8 +39,8 @@ client.on('message', message => {
 		return;
 	}
 	
-	else if (message.content.startsWith("%")){
-		if (message.content === "%info"){
+	else if (message.content.startsWith("<") || message.content.startsWith(">")){
+		if (message.content === "<info" || message.content === ">info"){
 			message.reply("\nGithub: <https://github.com/midknighterino/Bifrost-bot> \nLicense: <https://choosealicense.com/licenses/agpl-3.0/> \n\nVADER Citation: Hutto, C.J. & Gilbert, E.E. (2014). VADER citation: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.\nLink: <https://www.aaai.org/ocs/index.php/ICWSM/ICWSM14/paper/viewPaper/8109>")
 			return;
 		}
@@ -51,7 +51,7 @@ client.on('message', message => {
 	
 	console.log(`Content: ${message.content} (${message.content.length}) \nServer: ${message.guild.name} \nAuthor: ${message.author.username} (${message.author.id})`)
 
-	if (message.content.length > 100){
+	if (message.content.length >= 100){
 
 		message.delete();
 
