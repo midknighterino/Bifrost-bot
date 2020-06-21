@@ -27,8 +27,13 @@ client.on('message', message => {
 	}
 	
 	else if (message.content.startsWith("%")){
-	    message.react('🔇')
-		return;
+		if (message.content === "%info"){
+			message.reply("Github: <https://github.com/midknighterino/Bifrost-bot> \n\nLicense: <https://choosealicense.com/licenses/agpl-3.0/>")
+			return;
+		}
+		else {
+			return;
+		}
 	}
 	
 	console.log(`Content: ${message.content} \n\nServer: ${message.guild.name} \n\nAuthor: ${message.author.username} (${message.author.id})`)
