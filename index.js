@@ -27,8 +27,11 @@ client.on('message', message => {
 	}
 	
 	else if (message.content.startsWith("%")){
+	    message.react('🔇')
 		return;
 	}
+	
+	console.log(`Content: ${message.content} \n\nServer: ${message.guild.name} \n\nAuthor: ${message.author.username} (${message.author.id})`)
 
 	let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
 
@@ -40,7 +43,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`228B22`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
@@ -57,7 +60,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`FF0000`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
@@ -74,7 +77,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`FF8C00`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • P/N/C: ${Math.round(sentiment.pos*100)}%/${Math.round(sentiment.neg*100)}%/${Math.round(sentiment.compound*100)}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
