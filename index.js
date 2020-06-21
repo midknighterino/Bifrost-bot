@@ -12,12 +12,12 @@ client.on('message', message => {
 	if (message.author.bot){
 		return;
 	}
-
-	else if (blacklistedUserIDs.includes(message.author.id)){
+	
+    else if (whitelistedChannelIDs.includes(message.channel.id) === false){
 		return;
 	}
 
-	else if (whitelistedChannelIDs.includes(message.channel.id) === false){
+	else if (blacklistedUserIDs.includes(message.author.id)){
 		return;
 	}
 	
@@ -31,8 +31,7 @@ client.on('message', message => {
 	}
 
 	let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
-	let sentimentScore = Math.round(sentiment.compound*100);
-		
+
 	if (sentiment.compound >= 0.034){
 
 		message.delete()
@@ -41,7 +40,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`228B22`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
@@ -58,7 +57,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`FF0000`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
@@ -75,7 +74,7 @@ client.on('message', message => {
 		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
 		.setDescription (`${message.content}`)
 		.setColor (`FF8C00`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentScore}`)
+		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Positivity: ${sentiment.pos} • Negativity: ${sentiment.neg} • Overall: ${sentiment.compound}`)
 	
 		whitelistedChannelIDs.forEach(function(entry) {
 			client.channels.cache
