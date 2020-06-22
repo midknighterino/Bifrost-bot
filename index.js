@@ -1,89 +1,68 @@
 const Discord = require('discord.js');
-const vader = require('vader-sentiment');
+const webhook = require("webhook-discord"); 
 const client = new Discord.Client();
-const { token, whitelistedChannelIDs,blacklistedUserIDs } = require('./config.json');
+const { token, whitelistedChannels, blacklistedUsers, webhookURLs } = require('./config.json');
 
-var stringToColour = function(str) {
-	var hash = 0;
-	for (var i = 0; i < str.length; i++) {
-	  hash = str.charCodeAt(i) + ((hash << 5) - hash);
-	}
-	var colour = '#';
-	for (var i = 0; i < 3; i++) {
-	  var value = (hash >> (i * 8)) & 0xFF;
-	  colour += ('00' + value.toString(16)).substr(-2);
-	}
-	return colour;
+//Neat function to capitalise sentences
+const capitalize = (s) => {
+	if (typeof s !== 'string') return ''
+	return s.charAt(0).toUpperCase() + s.slice(1)
   }
 
-client.once('ready', () => {
-	console.log(`Bifrost-bot is ready!`);
+//Bot logs some info when it is ready
+client.once('ready', () => { 
+	console.log(`Tigris Ready!\n---\nWhitelisted Channels: ${whitelistedChannels} \nBlacklisted Users: ${blacklistedUsers}\n---`)
 });
 
-client.on('message', message => {
-    
+client.on('message', message => { 
+	//Stops the bot from acting on its own messages. Also stops responses to other bots. 
 	if (message.author.bot){
 		return;
-	}
-	
-    else if (whitelistedChannelIDs.includes(message.channel.id) === false){
-		return;
-	}
-
-	else if (blacklistedUserIDs.includes(message.author.id)){
-		return;
-	}
-	
-	else if (message.content == 0){
+	} 
+	//Stops images being sent. 
+	else if (capitalize(message.content) == 0){
 		message.delete()
 		return;
-	}
-	
+	}	
+	//Stops messages being sent by 'blacklisted' users. 
+	else if (blacklistedUsers.includes(message.author.id)){
+		message.react(`:zipper_mouth:`)
+		return;		
+	} 
+	//Stops the bot from mass mentioning users. Can be used to send private messages in shared channels. 
 	else if (message.content.startsWith("<") || message.content.startsWith(">")){
-		if (message.content === "<info" || message.content === ">info"){
-			message.reply("\nGithub: <https://github.com/midknighterino/Bifrost-bot> \nLicense: <https://choosealicense.com/licenses/agpl-3.0/> \n\nVADER Citation: Hutto, C.J. & Gilbert, E.E. (2014). VADER citation: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.\nLink: <https://www.aaai.org/ocs/index.php/ICWSM/ICWSM14/paper/viewPaper/8109>")
+		if (message.content === "<info>"){
+			message.reply("\nGithub: \nLicense: <https://choosealicense.com/licenses/agpl-3.0/>")
 			return;
 		}
 		else {
 			return;
 		}
-	}
-	
-	console.log(`Content: ${message.content} (${message.content.length}) \nServer: ${message.guild.name} \nAuthor: ${message.author.username} (${message.author.id})`)
+	}	
+	else if (whitelistedChannels.includes(message.channel.id)){
 
-	if (message.content.length >= 100){
+		//webhooks and loops
+		for (entry of webhookURLs){
+			const Hook = new webhook.Webhook(entry);
+ 
+			const msg = new webhook.MessageBuilder()
+							.setName(message.author.username)
+							.setAvatar(message.author.avatarURL())							
+							.setText(capitalize(message.content))
+			Hook.send(msg);			
+		}	
 
-		message.delete();
-
-		let sentiment = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
-		let sentimentBig = Math.round(sentiment.compound*1000);
-
-		let bifrostEmbed = new Discord.MessageEmbed ()
-		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
-		.setDescription (`${message.content}`)
-		.setColor (`${stringToColour(sentimentBig.toString())}`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id} • Sentiment: ${sentimentBig} (Zero is neutral)`)
-	
-		whitelistedChannelIDs.forEach(function(entry) {
-			client.channels.cache.get(entry)
-			.send(bifrostEmbed)
-		})
-		return;
-	} else {
-
+		//console logging 
+		console.log(`${message.author.username}(${message.author.id}): ${capitalize(message.content)} \n---`)
+		
+		//clean up
 		message.delete()
 
-		const bifrostEmbed = new Discord.MessageEmbed ()
-		.setAuthor (`${message.author.username}`,`${message.author.avatarURL()}`)
-		.setDescription (`${message.content}`)
-		.setFooter (`Server: ${message.guild.name} • User: ${message.author.id}`)
-	
-		whitelistedChannelIDs.forEach(function(entry) {
-			client.channels.cache
-				.get(entry)
-				.send(bifrostEmbed)
-		})
+		return;
+	}
+	else {
 		return;
 	}
 });
+
 client.login(token);
