@@ -1,6 +1,6 @@
 {
-	"token": "bot-token-here",
-	"whitelistedChannelIDs": ["channel-id","another-channel-id"],
-	"blacklistedUserIDs": ["annoying-user-id","another-annoying-user-id"]
+	"token": " ",
+	"whitelistedChannels": [" ", " "],
+	"blacklistedUsers": " ",
+	"webhookURLs": [" "," "]
 }
-Make sure you change all of these values. Bot will crash if given unexpected values, like "annoying-user-id"
