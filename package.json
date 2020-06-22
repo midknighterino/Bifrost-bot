@@ -1,6 +1,6 @@
 {
-  "name": "Bifrost bot",
-  "version": "2.0.0",
+  "name": "Tigris",
+  "version": "3.0.0",
   "description": "Links different channels in different guilds",
   "main": "index.js",
   "scripts": {
@@ -8,9 +8,9 @@
   },
   "keywords": [],
   "author": "Midknight",
-  "license": "GNU Affero General Public License v3.0",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "discord.js": "^12.2.0",
-    "vader-sentiment": "^1.1.3"
+    "webhook-discord": "^3.7.4"
   }
 }
